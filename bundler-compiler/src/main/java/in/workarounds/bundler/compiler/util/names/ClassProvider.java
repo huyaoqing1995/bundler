@@ -23,6 +23,7 @@ public class ClassProvider {
     public static final ClassName context = ClassName.get("android.content", "Context");
     public static final ClassName bundle = ClassName.get("android.os", "Bundle");
     public static final ClassName intent = ClassName.get("android.content", "Intent");
+    public static final ClassName activity = ClassName.get("android.app", "Activity");
 
     public static ClassName helper(ReqBundlerModel model) {
         return ClassName.bestGuess(model.getPackageName() + "." + model.getSimpleName() + "Bundler");

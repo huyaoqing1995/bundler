@@ -2,6 +2,7 @@ package in.workarounds.bundler.compiler.generator;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import in.workarounds.bundler.compiler.model.ArgModel;
@@ -33,11 +34,16 @@ public class BuilderGenerator {
 
         for (ArgModel arg : model.getArgs()) {
             builder.addField(arg.getAsField(Modifier.PRIVATE));
-            builder.addMethod(setterMethod(model, arg));
+            builder.addMethod(setterMethod(arg));
         }
 
-        builder.addField(TypeName.INT, "flags", Modifier.PRIVATE);
-        builder.addMethod(flagsMethod());
+        if (isActivity()) {
+            builder.addField(TypeName.INT, "flags", Modifier.PRIVATE);
+            builder.addMethod(flagsMethod());
+            generateField(builder, TypeName.INT, "enterAnimRes");
+            generateField(builder, TypeName.INT, "exitAnimRes");
+            generateField(builder, ClassProvider.bundle, "options");
+        }
 
         builder.addMethod(bundleMethod());
         builder.addMethods(additionalMethods());
@@ -55,21 +61,30 @@ public class BuilderGenerator {
             .build();
     }
 
-    private MethodSpec setterMethod(ReqBundlerModel model, ArgModel arg) {
-        return MethodSpec.methodBuilder(arg.getLabel())
+    private MethodSpec setterMethod(ArgModel arg) {
+        return setter(arg.getAsParameter());
+    }
+
+    private MethodSpec setter(ParameterSpec type) {
+        return MethodSpec.methodBuilder(type.name)
             .addModifiers(Modifier.PUBLIC)
             .returns(ClassProvider.builder(model))
-            .addParameter(arg.getAsParameter())
-            .addStatement("this.$1L = $1L", arg.getLabel())
+            .addParameter(type)
+            .addStatement("this.$1L = $1L", type.name)
             .addStatement("return this")
             .build();
     }
 
-    protected List<MethodSpec> additionalMethods() {
+    private void generateField(TypeSpec.Builder builder, TypeName type, String name) {
+        builder.addField(type, name, Modifier.PRIVATE);
+        builder.addMethod(setter(ParameterSpec.builder(type, name).build()));
+    }
+
+    private List<MethodSpec> additionalMethods() {
         switch (model.getVariety()) {
             case ACTIVITY:
             case SERVICE:
-                String methodName = model.getVariety() == ReqBundlerModel.VARIETY.ACTIVITY ? "startActivity" : "startService";
+                String methodName = isActivity() ? "startActivity" : "startService";
                 return Arrays.asList(intentMethod(), startMethod(methodName));
             case FRAGMENT:
             case FRAGMENT_V4:
@@ -104,24 +119,37 @@ public class BuilderGenerator {
     }
 
     private MethodSpec intentMethod() {
-        return MethodSpec.methodBuilder(MethodName.intent)
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(MethodName.intent)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(ClassProvider.context, VarName.context)
             .returns(ClassProvider.intent)
             .addStatement("$T $L = new $T($L, $T.class)", ClassProvider.intent, VarName.intent, ClassProvider.intent,
                 VarName.context, model.getClassName())
-            .addStatement("$L.putExtras($L())", VarName.intent, MethodName.bundle)
-            .addStatement("$L.setFlags(flags)", VarName.intent)
-            .addStatement("return $L", VarName.intent)
-            .build();
+            .addStatement("$L.putExtras($L())", VarName.intent, MethodName.bundle);
+        if (isActivity()) {
+            builder.addStatement("$L.setFlags(flags)", VarName.intent);
+        }
+        return builder.addStatement("return $L", VarName.intent).build();
     }
 
     private MethodSpec startMethod(String methodName) {
-        return MethodSpec.methodBuilder(MethodName.start)
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(MethodName.start)
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(ClassProvider.context, VarName.context)
-            .addStatement("$L.$L($L($L))", VarName.context, methodName, MethodName.intent, VarName.context)
-            .build();
+            .addParameter(ClassProvider.context, VarName.context);
+        if (isActivity()) {
+            return builder.beginControlFlow("if(options == null)")
+                .addStatement("$L.$L($L($L))", VarName.context, methodName, MethodName.intent, VarName.context)
+                .nextControlFlow("else")
+                .addStatement("$L.$L($L($L), options)", VarName.context, methodName, MethodName.intent, VarName.context)
+                .endControlFlow()
+                .beginControlFlow("if($L instanceof $T)", VarName.context, ClassProvider.activity)
+                .addStatement("(($T) $L).overridePendingTransition(enterAnimRes, exitAnimRes)", ClassProvider.activity,
+                    VarName.context)
+                .endControlFlow()
+                .build();
+        } else {
+            return builder.addStatement("$L.$L($L($L))", VarName.context, methodName, MethodName.intent, VarName.context).build();
+        }
     }
 
     private MethodSpec createMethod() {
@@ -132,5 +160,9 @@ public class BuilderGenerator {
             .addStatement("$L.setArguments($L())", VarName.from(model), VarName.bundle)
             .addStatement("return $L", VarName.from(model))
             .build();
+    }
+
+    private boolean isActivity() {
+        return model.getVariety() == ReqBundlerModel.VARIETY.ACTIVITY;
     }
 }
