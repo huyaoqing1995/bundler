@@ -81,9 +81,6 @@ public class BuilderGenerator {
     }
 
     private List<MethodSpec> additionalMethods() {
-        if(!model.getGenerateMethod()){
-            return new ArrayList<>();
-        }
         switch (model.getVariety()) {
             case ACTIVITY:
             case SERVICE:

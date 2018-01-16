@@ -75,7 +75,9 @@ public class BundlerProcessor extends AbstractProcessor implements Provider {
 
         for (ReqBundlerModel model : reqBundlerModels) {
             try {
-                new HelperWriter(model).brewJava().writeTo(filer);
+                if (model.getGenerateMethod()) {
+                    new HelperWriter(model).brewJava().writeTo(filer);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -91,23 +93,23 @@ public class BundlerProcessor extends AbstractProcessor implements Provider {
 
     private void setBundlerOptions(RoundEnvironment roundEnv) {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(OptionsForBundler.class);
-        if(elements.size() == 1) {
+        if (elements.size() == 1) {
             Element element = elements.iterator().next();
             OptionsForBundler annotation = element.getAnnotation(OptionsForBundler.class);
             String packageName = annotation.packageName();
-            if(!packageName.isEmpty() && StringUtils.isJavaClassName(packageName)) {
+            if (!packageName.isEmpty() && StringUtils.isJavaClassName(packageName)) {
                 bundlerPackage = annotation.packageName();
             } else {
                 error(element, "packageName:'%s' provided to @%s is invalid", packageName, OptionsForBundler.class.getSimpleName());
             }
-        } else if(elements.size() > 1) {
+        } else if (elements.size() > 1) {
             String s = String.format("@%s have been provided at multiple places please keep only one: \n", OptionsForBundler.class.getSimpleName());
-            for (Element element: elements) {
+            for (Element element : elements) {
                 s = s + String.format("%s \n", Utils.getQualifiedName(element));
             }
             error(null, s);
         } else {
-           // Do nothing if no OptionsForBundler Provided
+            // Do nothing if no OptionsForBundler Provided
         }
         ClassProvider.setBundlerPackage(bundlerPackage);
     }
