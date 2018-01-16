@@ -33,6 +33,7 @@ public class ReqBundlerModel {
     private ClassName className;
     private Element element;
     private String bundlerMethodName;
+    private boolean generateMethod;
     private boolean requireAll;
 
     private List<StateModel> states;
@@ -76,6 +77,7 @@ public class ReqBundlerModel {
         this.element = element;
         RequireBundler annotation = element.getAnnotation(RequireBundler.class);
         this.bundlerMethodName = annotation.bundlerMethod();
+        this.generateMethod = annotation.generateMethod();
         this.requireAll = annotation.requireAll();
 
         variety = getVariety((TypeElement) element, provider.typeUtils());
@@ -98,10 +100,10 @@ public class ReqBundlerModel {
     private void checkForErrors(List<? extends AnnotatedField> fields,
                                 Map<String, List<AnnotatedField>> map,
                                 Element element, Provider provider) {
-        if(map.size() == fields.size()) return;
+        if (map.size() == fields.size()) return;
 
-        for(Map.Entry<String, List<AnnotatedField>> entry: map.entrySet()) {
-            if(entry.getValue().size() > 1) {
+        for (Map.Entry<String, List<AnnotatedField>> entry : map.entrySet()) {
+            if (entry.getValue().size() > 1) {
                 reportDuplicateKeys(entry.getKey(), entry.getValue(), element, provider);
             }
         }
@@ -113,7 +115,7 @@ public class ReqBundlerModel {
         for (int i = 0; i < duplicateFields.size(); i++) {
             field = duplicateFields.get(i);
             error.append(field.getLabel());
-            if(i != duplicateFields.size() - 1) error.append(", ");
+            if (i != duplicateFields.size() - 1) error.append(", ");
         }
         error.append("} in ")
                 .append(className.simpleName())
@@ -260,6 +262,10 @@ public class ReqBundlerModel {
         return this.bundlerMethodName;
     }
 
+    public boolean getGenerateMethod() {
+        return this.generateMethod;
+    }
+
     public Element getElement() {
         return element;
     }
@@ -280,19 +286,19 @@ public class ReqBundlerModel {
         return className;
     }
 
-    public enum VARIETY {
-        ACTIVITY,
-        FRAGMENT,
-        FRAGMENT_V4,
-        SERVICE,
-        OTHER
-    }
-
     public List<ArgModel> getArgs() {
         return args;
     }
 
     public List<StateModel> getStates() {
         return states;
+    }
+
+    public enum VARIETY {
+        ACTIVITY,
+        FRAGMENT,
+        FRAGMENT_V4,
+        SERVICE,
+        OTHER
     }
 }
