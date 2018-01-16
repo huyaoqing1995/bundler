@@ -20,12 +20,6 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    compileOptions {
-        // 指定用 Java8 编译
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {
