@@ -142,7 +142,7 @@ public class BuilderGenerator {
                 .nextControlFlow("else")
                 .addStatement("$L.$L($L($L), options)", VarName.context, methodName, MethodName.intent, VarName.context)
                 .endControlFlow()
-                .beginControlFlow("if($L instanceof $T)", VarName.context, ClassProvider.activity)
+                .beginControlFlow("if($L instanceof $T && (enterAnimRes != 0 || exitAnimRes != 0))", VarName.context, ClassProvider.activity)
                 .addStatement("(($T) $L).overridePendingTransition(enterAnimRes, exitAnimRes)", ClassProvider.activity,
                     VarName.context)
                 .endControlFlow()
