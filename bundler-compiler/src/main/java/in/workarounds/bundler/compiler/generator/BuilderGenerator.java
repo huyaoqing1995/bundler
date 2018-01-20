@@ -1,19 +1,23 @@
 package in.workarounds.bundler.compiler.generator;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.lang.model.element.Modifier;
+
 import in.workarounds.bundler.compiler.model.ArgModel;
 import in.workarounds.bundler.compiler.model.ReqBundlerModel;
 import in.workarounds.bundler.compiler.util.names.ClassProvider;
 import in.workarounds.bundler.compiler.util.names.MethodName;
 import in.workarounds.bundler.compiler.util.names.VarName;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.lang.model.element.Modifier;
 
 /**
  * Created by madki on 17/11/15.
@@ -40,8 +44,13 @@ public class BuilderGenerator {
         if (isActivity()) {
             builder.addField(TypeName.INT, "flags", Modifier.PRIVATE);
             builder.addMethod(flagsMethod());
-            generateField(builder, TypeName.INT, "enterAnimRes");
-            generateField(builder, TypeName.INT, "exitAnimRes");
+
+            builder.addField(FieldSpec.builder(TypeName.INT, "enterAnimRes", Modifier.PRIVATE).initializer("$L", -1).build());
+            builder.addMethod(setter(ParameterSpec.builder(TypeName.INT, "enterAnimRes").build()));
+
+            builder.addField(FieldSpec.builder(TypeName.INT, "exitAnimRes", Modifier.PRIVATE).initializer("$L", -1).build());
+            builder.addMethod(setter(ParameterSpec.builder(TypeName.INT, "exitAnimRes").build()));
+
             generateField(builder, ClassProvider.bundle, "options");
         }
 
@@ -142,7 +151,7 @@ public class BuilderGenerator {
                 .nextControlFlow("else")
                 .addStatement("$L.$L($L($L), options)", VarName.context, methodName, MethodName.intent, VarName.context)
                 .endControlFlow()
-                .beginControlFlow("if($L instanceof $T && (enterAnimRes != 0 || exitAnimRes != 0))", VarName.context, ClassProvider.activity)
+                .beginControlFlow("if($L instanceof $T && (enterAnimRes != -1 || exitAnimRes != -1))", VarName.context, ClassProvider.activity)
                 .addStatement("(($T) $L).overridePendingTransition(enterAnimRes, exitAnimRes)", ClassProvider.activity,
                     VarName.context)
                 .endControlFlow()
