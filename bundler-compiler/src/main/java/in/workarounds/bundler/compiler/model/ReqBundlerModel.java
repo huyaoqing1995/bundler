@@ -27,6 +27,7 @@ public class ReqBundlerModel {
     private static final String ACTIVITY = "android.app.Activity";
     private static final String FRAGMENT = "android.app.Fragment";
     private static final String FRAGMENT_V4 = "android.support.v4.app.Fragment";
+    private static final String FRAGMENT_X = "androidx.fragment.app.Fragment";
     private static final String SERVICE = "android.app.Service";
 
     private VARIETY variety;
@@ -98,10 +99,10 @@ public class ReqBundlerModel {
     private void checkForErrors(List<? extends AnnotatedField> fields,
                                 Map<String, List<AnnotatedField>> map,
                                 Element element, Provider provider) {
-        if(map.size() == fields.size()) return;
+        if (map.size() == fields.size()) return;
 
-        for(Map.Entry<String, List<AnnotatedField>> entry: map.entrySet()) {
-            if(entry.getValue().size() > 1) {
+        for (Map.Entry<String, List<AnnotatedField>> entry : map.entrySet()) {
+            if (entry.getValue().size() > 1) {
                 reportDuplicateKeys(entry.getKey(), entry.getValue(), element, provider);
             }
         }
@@ -113,7 +114,7 @@ public class ReqBundlerModel {
         for (int i = 0; i < duplicateFields.size(); i++) {
             field = duplicateFields.get(i);
             error.append(field.getLabel());
-            if(i != duplicateFields.size() - 1) error.append(", ");
+            if (i != duplicateFields.size() - 1) error.append(", ");
         }
         error.append("} in ")
                 .append(className.simpleName())
@@ -234,6 +235,8 @@ public class ReqBundlerModel {
                 return VARIETY.FRAGMENT;
             case FRAGMENT_V4:
                 return VARIETY.FRAGMENT_V4;
+            case FRAGMENT_X:
+                return VARIETY.FRAGMENT_X;
             case SERVICE:
                 return VARIETY.SERVICE;
             default:
@@ -284,6 +287,7 @@ public class ReqBundlerModel {
         ACTIVITY,
         FRAGMENT,
         FRAGMENT_V4,
+        FRAGMENT_X,
         SERVICE,
         OTHER
     }
