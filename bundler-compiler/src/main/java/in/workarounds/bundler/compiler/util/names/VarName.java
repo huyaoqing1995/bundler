@@ -13,6 +13,7 @@ public class VarName {
     public static final String bundle  = from(ClassProvider.bundle);
     public static final String context = from(ClassProvider.context);
     public static final String intent  = from(ClassProvider.intent);
+    public static final String activity  = from(ClassProvider.activity);
 
     public static final String defaultVal = "defaultVal";
     public static final String parser     = "parser";

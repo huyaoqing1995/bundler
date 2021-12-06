@@ -34,6 +34,7 @@ public class ReqBundlerModel {
     private ClassName className;
     private Element element;
     private String bundlerMethodName;
+    private boolean generateMethod;
     private boolean requireAll;
 
     private List<StateModel> states;
@@ -77,6 +78,7 @@ public class ReqBundlerModel {
         this.element = element;
         RequireBundler annotation = element.getAnnotation(RequireBundler.class);
         this.bundlerMethodName = annotation.bundlerMethod();
+        this.generateMethod = annotation.generateMethod();
         this.requireAll = annotation.requireAll();
 
         variety = getVariety((TypeElement) element, provider.typeUtils());
@@ -261,6 +263,10 @@ public class ReqBundlerModel {
 
     public String getBundlerMethodName() {
         return this.bundlerMethodName;
+    }
+
+    public boolean getGenerateMethod() {
+        return this.generateMethod;
     }
 
     public Element getElement() {

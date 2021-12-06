@@ -42,7 +42,7 @@ public class BundlerWriter {
             }
         }
 
-        if(models.size() == methodMap.size()) return;
+        if (models.size() == methodMap.size()) return;
 
         for (Map.Entry<String, List<Integer>> entry : methodMap.entrySet()) {
             if (entry.getValue().size() > 1) {
@@ -63,6 +63,9 @@ public class BundlerWriter {
         // TODO check data validity, same method names?
 
         for (ReqBundlerModel model : models) {
+            if (!model.getGenerateMethod()) {
+                continue;
+            }
             classBuilder
                     .addMethod(injectMethod(model))
                     .addMethod(buildMethod(model, model.getRequiredArgs()))

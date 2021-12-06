@@ -15,4 +15,5 @@ public @interface RequireBundler {
     String bundlerMethod() default "";
     boolean inheritArgs() default true;
     boolean inheritState() default true;
+    boolean generateMethod() default true;
 }
