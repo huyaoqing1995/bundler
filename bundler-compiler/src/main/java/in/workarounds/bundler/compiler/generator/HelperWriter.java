@@ -206,6 +206,7 @@ public class HelperWriter {
                 return Arrays.asList(parseIntentMethod());
             case FRAGMENT:
             case FRAGMENT_V4:
+            case FRAGMENT_X:
             case OTHER:
             default:
                 return new ArrayList<>();

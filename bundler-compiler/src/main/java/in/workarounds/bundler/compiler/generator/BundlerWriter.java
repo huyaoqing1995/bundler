@@ -103,6 +103,7 @@ public class BundlerWriter {
             case ACTIVITY:
             case FRAGMENT:
             case FRAGMENT_V4:
+            case FRAGMENT_X:
                 String getMethodName = model.getVariety() == ReqBundlerModel.VARIETY.ACTIVITY ?
                         "getIntent" : "getArguments";
                 return MethodSpec.methodBuilder(MethodName.inject)

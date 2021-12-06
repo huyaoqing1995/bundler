@@ -66,6 +66,7 @@ public class BuilderGenerator {
                 return Arrays.asList(intentMethod(), startMethod(methodName));
             case FRAGMENT:
             case FRAGMENT_V4:
+            case FRAGMENT_X:
                 return Arrays.asList(createMethod());
             case OTHER:
             default:
